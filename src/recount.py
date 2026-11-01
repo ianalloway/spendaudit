@@ -199,7 +199,7 @@ def main():
     for k, ((rq, m, kind, a, b), (na, nb, only_a, only_b, p)) in enumerate(results):
         label = f"{SHORT[a[1]]}{a[0]} vs {SHORT[b[1]]}{b[0]}"
         print(f"{rq} {m:22s} {kind:16s} {label:22s} {na:2d} vs {nb:2d}  "
-              f"discordant {only_a}/{only_b}  p = {p:.2g}  {'sig.' if k in significant else 'n.s.'}")
+              f"discordant {only_a}/{only_b}  p = {p:.3g}  {'sig.' if k in significant else 'n.s.'}")
 
     return 1 if label_mismatches or pair_mismatches or duplicates else 0
 
