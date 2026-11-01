@@ -1,0 +1,8 @@
+{POLICY}
+
+EXECUTION TRACE
+{trace}
+
+The payment under review is step {payment_step}.
+
+{instruction}

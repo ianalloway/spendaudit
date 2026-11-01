@@ -1,0 +1,2 @@
+Respond with a JSON object only, in exactly this form:
+{"verdict": "compliant" or "violation", "rule": the number (1-7) of the rule that was broken, or null if compliant}

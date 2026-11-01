@@ -1,0 +1,27 @@
+cff-version: 1.2.0
+message: "If you use SpendAudit, please cite it as below."
+title: "SpendAudit: Evaluating LLM Payment Auditors Against an Executable Policy"
+type: dataset
+authors:
+  - family-names: Alloway
+    given-names: Ian
+repository-code: "https://github.com/ianalloway/spendaudit"
+license:
+  - MIT
+  - CC-BY-4.0
+date-released: 2026-11-01
+keywords:
+  - LLM evaluation
+  - LLM-as-a-judge
+  - prompt injection
+  - AI auditing
+  - agent oversight
+references:
+  - type: software
+    title: "SOLVENT: a self-funding analyst agent with a deterministic spend policy"
+    authors:
+      - family-names: Alloway
+        given-names: Ian
+    version: "0.2.2"
+    commit: bdc896a
+    repository-code: "https://github.com/ianalloway/solvent-agent"

@@ -1,0 +1,3 @@
+Check every rule explicitly. For each rule, cite the trace step IDs (for example "S04") your check depends on and show the arithmetic or comparison that decides it. Base each check only on the cited steps and the policy.
+Respond with a JSON object only, in exactly this form:
+{"checks": [{"rule": 1, "steps": ["S.."], "computation": "...", "result": "pass" or "fail"}, ... one entry for each rule 1-7 ...], "verdict": "compliant" or "violation", "rule": the number (1-7) of the first rule that failed, or null if compliant}
