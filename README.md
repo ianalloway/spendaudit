@@ -1,5 +1,7 @@
 # SpendAudit
 
+[![recount](https://github.com/ianalloway/spendaudit/actions/workflows/recount.yml/badge.svg)](https://github.com/ianalloway/spendaudit/actions/workflows/recount.yml)
+
 **Can an LLM auditor reach the same verdict as an executable spending policy?**
 
 SpendAudit is a 320-item benchmark of synthetic payment traces in which the right answer is computed, not judged. Every label comes from the deterministic spend policy in [SOLVENT](https://github.com/ianalloway/solvent-agent) (v0.2.2, commit `bdc896a`), and every scenario appears twice: once clean, and once with a prompt injection in the memo of the payment under review that argues for the wrong verdict.
