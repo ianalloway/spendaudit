@@ -1,6 +1,9 @@
 # SpendAudit
 
 [![recount](https://github.com/ianalloway/spendaudit/actions/workflows/recount.yml/badge.svg)](https://github.com/ianalloway/spendaudit/actions/workflows/recount.yml)
+[![Paper (PDF)](https://img.shields.io/badge/paper-PDF-b31b1b.svg)](paper/spendaudit.pdf)
+[![Cite](https://img.shields.io/badge/cite-CITATION.cff-blue.svg)](CITATION.cff)
+[![License: MIT + CC BY 4.0](https://img.shields.io/badge/license-MIT%20%2B%20CC%20BY%204.0-lightgrey.svg)](#license)
 
 **Can an LLM auditor reach the same verdict as an executable spending policy?**
 
@@ -87,6 +90,12 @@ GEMINI_API_KEY=... RESULTS_FILE=results_mymodel.jsonl python3 src/run_judges.py 
 `recount.py` reads every `results_*.jsonl` file in `results/`, so move new runs elsewhere before recounting the paper's numbers.
 
 The paper's runs used the free Gemini API tier on October 12–13, 2026, at temperature 0. Gemini models had a 1,800-token output budget; Gemma was rerun with 8,192 tokens after the first run was truncated, and only the rerun is included.
+
+## Releases and citing
+
+- **Paper:** [`paper/spendaudit.pdf`](paper/spendaudit.pdf), built from [`paper/spendaudit.tex`](paper/spendaudit.tex).
+- **Releases:** tagged versions, each with the paper PDF attached, are listed on the [Releases page](https://github.com/ianalloway/spendaudit/releases). Cite a tagged release rather than `main` so the numbers stay reproducible.
+- **Citation metadata:** [`CITATION.cff`](CITATION.cff) powers GitHub's *Cite this repository* button, and [`.zenodo.json`](.zenodo.json) holds the metadata for an archived, DOI-backed copy of each release.
 
 ## Citation
 
