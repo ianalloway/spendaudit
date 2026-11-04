@@ -1,0 +1,27 @@
+{
+  "title": "SpendAudit: Evaluating LLM Payment Auditors Against an Executable Policy",
+  "description": "A 320-item benchmark of synthetic payment traces in which the right answer is computed, not judged. Every label comes from the deterministic spend policy in SOLVENT, and every scenario appears twice: once clean, and once with a prompt injection in the memo of the payment under review. Includes the working paper, data, prompts, judge outputs and a one-command recount script.",
+  "upload_type": "dataset",
+  "creators": [
+    {
+      "name": "Alloway, Ian"
+    }
+  ],
+  "license": "cc-by-4.0",
+  "keywords": [
+    "LLM evaluation",
+    "LLM-as-a-judge",
+    "prompt injection",
+    "AI auditing",
+    "agent oversight",
+    "benchmark"
+  ],
+  "related_identifiers": [
+    {
+      "identifier": "https://github.com/ianalloway/solvent-agent",
+      "relation": "isDerivedFrom",
+      "resource_type": "software"
+    }
+  ],
+  "notes": "Code is MIT; data, prompts and judge outputs are CC BY 4.0."
+}
