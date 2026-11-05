@@ -21,8 +21,9 @@ Two protocols were compared: **verdict-only** (V) and **evidence and arithmetic*
 | Gemini 3.5 Flash-Lite | 122 | 47 → 18 | 51 → 30 | 25 → 0 |
 | Gemma 4 31B | 87 | 0 → 0 | 14 → 10 | 0 → 0 |
 
-- Requiring rule-by-rule evidence cut false approvals sharply for both Gemini models (exact McNemar p < 10⁻⁷ on clean traces) and produced no false rejections in any condition.
+- Requiring rule-by-rule evidence cut false approvals sharply for both Gemini models (exact McNemar p < 10⁻⁷ on clean traces) and produced no false rejections within these four-condition matched subsets.
 - Injected memos still got violating payments approved under the evidence protocol, for every model. Gemma made no errors on clean traces but approved 10 of 66 violating payments once the memo asked it to.
+- Outside the matched subsets, Gemini 3.5 returned one false rejection under the evidence protocol (`sc125_inj`); its clean evidence response failed with an API error, so that scenario is excluded from the paired analysis.
 - 531 of 1,920 intended judgments failed with API errors on the free Gemini tier, mostly on boundary cases, so these are complete-case comparisons within each model, not benchmark-level accuracy.
 
 Every number in the paper can be recomputed from this repository with one command:
