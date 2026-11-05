@@ -29,7 +29,7 @@ Two protocols were compared: **verdict-only** (V) and **evidence and arithmetic*
 Every number in the paper can be recomputed from this repository with one command:
 
 ```bash
-python3 src/recount.py
+python3 src/recount.py   # quickstart: clone, then run this; no install needed
 ```
 
 It uses only the Python standard library and makes no network calls.
@@ -95,7 +95,8 @@ The paper's runs used the free Gemini API tier on October 12–13, 2026, at temp
 ## Releases and citing
 
 - **Paper:** [`paper/spendaudit.pdf`](paper/spendaudit.pdf), built from [`paper/spendaudit.tex`](paper/spendaudit.tex).
-- **Releases:** tagged versions, each with the paper PDF attached, are listed on the [Releases page](https://github.com/ianalloway/spendaudit/releases). Cite a tagged release rather than `main` so the numbers stay reproducible.
+- **Releases:** no tagged release has been published yet. Until one is available on the [Releases page](https://github.com/ianalloway/spendaudit/releases), cite the [corrected snapshot](https://github.com/ianalloway/spendaudit/tree/829306f8d0d4b47a03bd62b7044d404a88d42f57) rather than changing `main`.
+- **DOI:** no DOI has been minted yet. Citation metadata is prepared for a future archive; until then, cite the corrected snapshot above or the repository URL below.
 - **Citation metadata:** [`CITATION.cff`](CITATION.cff) powers GitHub's *Cite this repository* button, and [`.zenodo.json`](.zenodo.json) holds the metadata for an archived, DOI-backed copy of each release.
 
 ## Citation
