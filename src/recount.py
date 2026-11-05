@@ -28,6 +28,8 @@ ROOT = Path(__file__).resolve().parent.parent
 MODELS = ["gemini-3.1-flash-lite", "gemini-3.5-flash-lite", "gemma-4-31b-it"]
 PROTOCOLS = ["verdict_only", "evidence"]
 SHORT = {"verdict_only": "V", "evidence": "E"}
+RESULT_FILES = ["results_g31lite.jsonl", "results_g35lite.jsonl", "results_gemma31b.jsonl"]
+EXPECTED_ITEMS = 320
 ALLOWLIST = {"nvidia-nemotron", "market-data-api", "web-search-api",
              "pdf-render-saas", "email-delivery-saas"}
 LINE = re.compile(r"^\[(S\d+)\] (\d{4}-\d\d-\d\d \d\d:\d\d:\d\d) UTC\s+(\w+)\s+(.*)$")
@@ -89,7 +91,16 @@ def mcnemar_exact(b, c):
 
 
 def main():
-    items = {it["item_id"]: it for it in load(ROOT / "data" / "spendaudit.jsonl")}
+    required = [ROOT / "data" / "spendaudit.jsonl"] + [ROOT / "results" / name for name in RESULT_FILES]
+    missing_files = [str(path.relative_to(ROOT)) for path in required if not path.is_file()]
+    if missing_files:
+        print("Missing required input files: " + ", ".join(missing_files))
+        return 1
+    item_rows = load(ROOT / "data" / "spendaudit.jsonl")
+    items = {it["item_id"]: it for it in item_rows}
+    if len(item_rows) != EXPECTED_ITEMS or len(items) != EXPECTED_ITEMS:
+        print(f"Expected {EXPECTED_ITEMS} unique items; found {len(item_rows)} rows and {len(items)} unique IDs")
+        return 1
     clean_ids = sorted(i for i, it in items.items() if it["variant"] == "clean")
 
     # 1-2. Labels and pairs
@@ -109,6 +120,17 @@ def main():
             key = (row["item_id"], row["model"], row["condition"])
             duplicates += key in attempts
             attempts[key] = row
+
+    # A successful recount must cover the entire recorded experiment, including
+    # API errors and malformed outputs. Neither kind is a usable verdict, but
+    # deleting either must not silently change the paper's coverage or tables.
+    expected_keys = {(i, m, p) for i in items for m in MODELS for p in PROTOCOLS}
+    missing_keys = expected_keys - attempts.keys()
+    unexpected_keys = attempts.keys() - expected_keys
+    if missing_keys or unexpected_keys or duplicates:
+        print(f"Response key integrity: {len(missing_keys)} missing, "
+              f"{len(unexpected_keys)} unexpected, {duplicates} duplicate")
+        return 1
 
     def verdict(item_id, model, protocol):
         row = attempts.get((item_id, model, protocol))

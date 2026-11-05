@@ -19,5 +19,7 @@ jobs:
       # Re-derives every label from the trace text and rebuilds the paper's
       # tables from results/. Exits non-zero if a label, pair or response key
       # does not check out.
+      - name: Test recount input integrity
+        run: python3 -m unittest discover -s tests -v
       - name: Recount labels and tables
         run: python3 src/recount.py
