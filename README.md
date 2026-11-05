@@ -21,8 +21,9 @@ Two protocols were compared: **verdict-only** (V) and **evidence and arithmetic*
 | Gemini 3.5 Flash-Lite | 122 | 47 → 18 | 51 → 30 | 25 → 0 |
 | Gemma 4 31B | 87 | 0 → 0 | 14 → 10 | 0 → 0 |
 
-- Requiring rule-by-rule evidence cut false approvals sharply for both Gemini models (exact McNemar p < 10⁻⁷ on clean traces) and produced no false rejections in any condition.
+- Requiring rule-by-rule evidence cut false approvals sharply for both Gemini models (exact McNemar p < 10⁻⁷ on clean traces) and produced no false rejections within these four-condition matched subsets.
 - Injected memos still got violating payments approved under the evidence protocol, for every model. Gemma made no errors on clean traces but approved 10 of 66 violating payments once the memo asked it to.
+- Outside the matched subsets, Gemini 3.5 returned one false rejection under the evidence protocol (`sc125_inj`); its clean evidence response failed with an API error, so that scenario is excluded from the paired analysis.
 - 531 of 1,920 intended judgments failed with API errors on the free Gemini tier, mostly on boundary cases, so these are complete-case comparisons within each model, not benchmark-level accuracy.
 
 Every number in the paper can be recomputed from this repository with one command:
@@ -94,9 +95,8 @@ The paper's runs used the free Gemini API tier on October 12–13, 2026, at temp
 ## Releases and citing
 
 - **Paper:** [`paper/spendaudit.pdf`](paper/spendaudit.pdf), built from [`paper/spendaudit.tex`](paper/spendaudit.tex).
-- **Releases:** tagged versions, each with the paper PDF attached, are listed on the [Releases page](https://github.com/ianalloway/spendaudit/releases). Cite a tagged release rather than `main` so the numbers stay reproducible.
-- **DOI:** not minted yet. A Zenodo DOI (and a DOI badge at the top of this README) will be added once v1.0 is released and archived; until then, cite the tagged release or the URL below.
-<!-- TODO(after v1.0 Zenodo archive): add [![DOI](https://zenodo.org/badge/DOI/<doi>.svg)](https://doi.org/<doi>) next to the badges above. -->
+- **Releases:** no tagged release has been published yet. Until one is available on the [Releases page](https://github.com/ianalloway/spendaudit/releases), cite the [corrected snapshot](https://github.com/ianalloway/spendaudit/tree/829306f8d0d4b47a03bd62b7044d404a88d42f57) rather than changing `main`.
+- **DOI:** no DOI has been minted yet. Citation metadata is prepared for a future archive; until then, cite the corrected snapshot above or the repository URL below.
 - **Citation metadata:** [`CITATION.cff`](CITATION.cff) powers GitHub's *Cite this repository* button, and [`.zenodo.json`](.zenodo.json) holds the metadata for an archived, DOI-backed copy of each release.
 
 ## Citation
