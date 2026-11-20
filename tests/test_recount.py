@@ -61,6 +61,20 @@ class RecountInputTests(unittest.TestCase):
         self.assertEqual(code, 1)
         self.assertIn("Missing required input files", output)
 
+    def test_confusion_matrix_keeps_unusable_responses_out_of_error_counts(self):
+        code, output = self.run_recount(confusion_matrix=True)
+        self.assertEqual(code, 0)
+        table = output.split("Verdict confusion matrix across all intended judgments\n")[1].split("\n\n")[0]
+        rows = [line.split() for line in table.splitlines()[1:]]
+        self.assertEqual(len(rows), 12)
+        self.assertEqual({tuple(row[:3]) for row in rows}, {
+            (model, protocol, variant) for model in recount.MODELS
+            for protocol in ("V", "E") for variant in ("clean", "injected")
+        })
+        counts = [list(map(int, row[3:])) for row in rows]
+        self.assertTrue(all(sum(row) == 160 for row in counts))
+        self.assertEqual(list(map(sum, zip(*counts))), [438, 268, 36, 646, 532])
+
     def test_missing_dataset_fails(self):
         (self.root / "data" / "spendaudit.jsonl").unlink()
         self.assertEqual(self.run_recount()[0], 1)
