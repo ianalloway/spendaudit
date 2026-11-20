@@ -80,6 +80,10 @@ Two independent checks back the labels: the generator asserts that SOLVENT's `Gu
 # Recount labels, coverage and the paper's tables from the published files
 python3 src/recount.py
 
+# Break Table 3 down by model, protocol, scenario category and clean/injected variant.
+# Each row counts intended judgments, usable verdicts, API errors, malformed and missing.
+python3 src/recount.py --coverage-by-category
+
 # Regenerate the dataset (needs Python 3.10+ and SOLVENT checked out at bdc896a)
 git clone https://github.com/ianalloway/solvent-agent && git -C solvent-agent checkout bdc896a
 SOLVENT_PATH=$PWD/solvent-agent python3 src/make_dataset.py
