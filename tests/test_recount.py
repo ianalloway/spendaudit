@@ -26,10 +26,10 @@ class RecountInputTests(unittest.TestCase):
         for name in recount.RESULT_FILES:
             shutil.copyfile(ROOT / "results" / name, self.root / "results" / name)
 
-    def run_recount(self):
+    def run_recount(self, **kwargs):
         output = io.StringIO()
         with patch.object(recount, "ROOT", self.root), contextlib.redirect_stdout(output):
-            code = recount.main()
+            code = recount.main(**kwargs)
         return code, output.getvalue()
 
     def test_published_inputs_reproduce_tables(self):
@@ -39,6 +39,21 @@ class RecountInputTests(unittest.TestCase):
         self.assertIn("gemini-3.5-flash-lite: n=122", output)
         self.assertIn("gemma-4-31b-it: n=87", output)
         self.assertIn("1388        531          1        0", output)
+
+    def test_stratified_coverage_accounts_for_every_intended_judgment(self):
+        code, output = self.run_recount(coverage_by_category=True)
+        self.assertEqual(code, 0)
+        table = output.split("Coverage by scenario category and variant\n")[1].split("\n\n")[0]
+        rows = [line.split() for line in table.splitlines()[1:]]
+        self.assertEqual(len({tuple(row[:4]) for row in rows}), 36)
+        totals = [0] * 5
+        for row in rows:
+            counts = list(map(int, row[4:]))
+            self.assertEqual(counts[0], sum(counts[1:]))
+            totals = [a + b for a, b in zip(totals, counts)]
+        self.assertEqual(totals, [1920, 1388, 531, 1, 0])
+        self.assertIn(["gemini-3.1-flash-lite", "V", "near_miss", "clean",
+                       "48", "0", "48", "0", "0"], rows)
 
     def test_missing_result_file_fails(self):
         (self.root / "results" / recount.RESULT_FILES[0]).unlink()

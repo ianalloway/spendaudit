@@ -15,6 +15,7 @@ Usage (from the repository root):
 
     python3 src/recount.py
 """
+import argparse
 import json
 import math
 import re
@@ -90,7 +91,7 @@ def mcnemar_exact(b, c):
     return min(1.0, 2 * tail)
 
 
-def main():
+def main(*, coverage_by_category=False):
     required = [ROOT / "data" / "spendaudit.jsonl"] + [ROOT / "results" / name for name in RESULT_FILES]
     missing_files = [str(path.relative_to(ROOT)) for path in required if not path.is_file()]
     if missing_files:
@@ -142,20 +143,45 @@ def main():
     def truth(item_id):
         return "violation" if items[item_id]["gt_violation"] else "compliant"
 
+    def coverage(item_ids, model, protocol):
+        counts = Counter()
+        for item_id in item_ids:
+            row = attempts.get((item_id, model, protocol))
+            if row is None:
+                counts["missing"] += 1
+            elif "error" in row:
+                counts["api_error"] += 1
+            elif verdict(item_id, model, protocol) is None:
+                counts["malformed"] += 1
+            else:
+                counts["usable"] += 1
+        return counts
+
     print(f"\nDuplicate response keys: {duplicates}")
     print("\nTable 3. Coverage of the 320 intended judgments per cell")
     print(f"{'model':24s} P  usable  api_error  malformed  missing")
     totals = Counter()
     for m in MODELS:
         for p in PROTOCOLS:
-            rows = [attempts.get((i, m, p)) for i in items]
-            usable = sum(verdict(i, m, p) is not None for i in items)
-            api_error = sum(1 for r in rows if r and "error" in r)
-            malformed = sum(1 for r in rows if r and "error" not in r) - usable
-            missing = sum(r is None for r in rows)
-            totals.update(usable=usable, api_error=api_error, malformed=malformed, missing=missing)
-            print(f"{m:24s} {SHORT[p]}  {usable:6d}  {api_error:9d}  {malformed:9d}  {missing:7d}")
+            counts = coverage(items, m, p)
+            totals.update(counts)
+            print(f"{m:24s} {SHORT[p]}  {counts['usable']:6d}  {counts['api_error']:9d}  "
+                  f"{counts['malformed']:9d}  {counts['missing']:7d}")
     print(f"{'total':26s}{totals['usable']:6d}  {totals['api_error']:9d}  {totals['malformed']:9d}  {totals['missing']:7d}")
+
+    if coverage_by_category:
+        print("\nCoverage by scenario category and variant")
+        print(f"{'model':24s} P  {'category':10s} {'variant':8s}  intended  usable  api_error  malformed  missing")
+        groups = {}
+        for item_id, item in items.items():
+            groups.setdefault((item["category"], item["variant"]), []).append(item_id)
+        for m in MODELS:
+            for p in PROTOCOLS:
+                for (category, variant), item_ids in sorted(groups.items()):
+                    counts = coverage(item_ids, m, p)
+                    print(f"{m:24s} {SHORT[p]}  {category:10s} {variant:8s}  {len(item_ids):8d}  "
+                          f"{counts['usable']:6d}  {counts['api_error']:9d}  "
+                          f"{counts['malformed']:9d}  {counts['missing']:7d}")
 
     # Four-condition matched subsets
     print("\nTable 4. Four-condition matched subsets (V -> E)")
@@ -227,4 +253,8 @@ def main():
 
 
 if __name__ == "__main__":
-    sys.exit(main())
+    parser = argparse.ArgumentParser(description=__doc__.splitlines()[0])
+    parser.add_argument("--coverage-by-category", action="store_true",
+                        help="Break down Table 3 by scenario category and clean/injected variant.")
+    args = parser.parse_args()
+    sys.exit(main(coverage_by_category=args.coverage_by_category))
