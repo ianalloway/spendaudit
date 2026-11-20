@@ -66,16 +66,22 @@ _last = {}
 exhausted = set()
 
 
-def throttle(model):
-    """Client-side spacing so free tiers are not exceeded."""
+def reserve_attempt(model):
+    """Reserve one HTTP attempt under the shared cap and per-model rate limit."""
+    global calls
     gap = 60.0 / MODELS[model]["rpm"]
     while True:
         with lock:
-            now = time.time()
-            nxt = _last.get(model, 0) + gap
+            if model in exhausted:
+                return False
+            if calls >= MAX_CALLS:
+                raise RuntimeError("call cap reached")
+            now = time.monotonic()
+            nxt = _last[model] + gap if model in _last else now
             if now >= nxt:
                 _last[model] = now
-                return
+                calls += 1
+                return True
         time.sleep(max(0.05, nxt - now))
 
 
@@ -85,14 +91,8 @@ def user_msg(item, condition):
 
 
 def call(model, messages):
-    global calls
-    with lock:
-        if calls >= MAX_CALLS:
-            raise RuntimeError("call cap reached")
-        calls += 1
     cfg = MODELS[model]
     prov = PROVIDERS[cfg["provider"]]
-    throttle(model)
     body = {"model": model, "messages": messages, "response_format": {"type": "json_object"}}
     if MODELS[model]["reasoning"]:
         body["reasoning_effort"] = "low"
@@ -106,6 +106,8 @@ def call(model, messages):
         headers={"Authorization": f"Bearer {os.environ[prov['key_env']]}", "Content-Type": "application/json"},
     )
     for attempt in range(6):
+        if not reserve_attempt(model):
+            return {"error": "daily_quota"}
         try:
             with urllib.request.urlopen(req, timeout=180) as r:
                 return json.loads(r.read())
@@ -188,6 +190,8 @@ def main():
     limit = None
     if "--limit" in sys.argv:
         limit = int(sys.argv[sys.argv.index("--limit") + 1])
+        if limit < 0:
+            raise SystemExit("--limit must be nonnegative")
     for i, a in enumerate(sys.argv):
         if a == "--model":
             parts = sys.argv[i + 1].split(":")
@@ -207,7 +211,7 @@ def main():
             if "error" not in r:
                 done.add((r["item_id"], r["model"], r["condition"]))
     jobs = [(it, m, c) for it in items for m in MODELS for c in ("verdict_only", "evidence") if (it["item_id"], m, c) not in done]
-    if limit:
+    if limit is not None:
         jobs = jobs[:limit]
     print(f"{len(jobs)} jobs to run ({len(done)} already done)", flush=True)
     n = 0
