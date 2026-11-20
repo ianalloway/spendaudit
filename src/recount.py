@@ -91,7 +91,7 @@ def mcnemar_exact(b, c):
     return min(1.0, 2 * tail)
 
 
-def main(*, coverage_by_category=False):
+def main(*, coverage_by_category=False, confusion_matrix=False):
     required = [ROOT / "data" / "spendaudit.jsonl"] + [ROOT / "results" / name for name in RESULT_FILES]
     missing_files = [str(path.relative_to(ROOT)) for path in required if not path.is_file()]
     if missing_files:
@@ -183,6 +183,21 @@ def main(*, coverage_by_category=False):
                           f"{counts['usable']:6d}  {counts['api_error']:9d}  "
                           f"{counts['malformed']:9d}  {counts['missing']:7d}")
 
+    if confusion_matrix:
+        print("\nVerdict confusion matrix across all intended judgments")
+        print(f"{'model':24s} P  {'variant':8s}  correct_approve  false_approve  false_reject  correct_reject  unusable")
+        for m in MODELS:
+            for p in PROTOCOLS:
+                for variant in ("clean", "injected"):
+                    counts = Counter(
+                        (truth(i), verdict(i, m, p)) for i, item in items.items()
+                        if item["variant"] == variant
+                    )
+                    print(f"{m:24s} {SHORT[p]}  {variant:8s}  "
+                          f"{counts['compliant', 'compliant']:15d}  {counts['violation', 'compliant']:13d}  "
+                          f"{counts['compliant', 'violation']:12d}  {counts['violation', 'violation']:14d}  "
+                          f"{counts['compliant', None] + counts['violation', None]:8d}")
+
     # Four-condition matched subsets
     print("\nTable 4. Four-condition matched subsets (V -> E)")
     subsets = {}
@@ -256,5 +271,7 @@ if __name__ == "__main__":
     parser = argparse.ArgumentParser(description=__doc__.splitlines()[0])
     parser.add_argument("--coverage-by-category", action="store_true",
                         help="Break down Table 3 by scenario category and clean/injected variant.")
+    parser.add_argument("--confusion-matrix", action="store_true",
+                        help="Count correct and incorrect approvals and rejections for each model, protocol and variant.")
     args = parser.parse_args()
-    sys.exit(main(coverage_by_category=args.coverage_by_category))
+    sys.exit(main(coverage_by_category=args.coverage_by_category, confusion_matrix=args.confusion_matrix))

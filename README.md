@@ -84,6 +84,10 @@ python3 src/recount.py
 # Each row counts intended judgments, usable verdicts, API errors, malformed and missing.
 python3 src/recount.py --coverage-by-category
 
+# Count correct approvals, false approvals, false rejections, correct rejections
+# and unusable responses across all intended judgments for each model, protocol and variant.
+python3 src/recount.py --confusion-matrix
+
 # Regenerate the dataset (needs Python 3.10+ and SOLVENT checked out at bdc896a)
 git clone https://github.com/ianalloway/solvent-agent && git -C solvent-agent checkout bdc896a
 SOLVENT_PATH=$PWD/solvent-agent python3 src/make_dataset.py
