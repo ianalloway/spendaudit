@@ -96,6 +96,26 @@ SOLVENT_PATH=$PWD/solvent-agent python3 src/make_dataset.py
 GEMINI_API_KEY=... RESULTS_FILE=results_mymodel.jsonl python3 src/run_judges.py --model gemini-3.5-flash-lite:gemini:0:12
 ```
 
+The judge runner shares a 2,100-request budget across workers and models for each process. Each HTTP attempt, including a retry, uses one slot. Use `--limit 0` to check the run without submitting any judgments. A restarted run gets a fresh budget and skips completed judgments recorded in its results files.
+
+```mermaid
+sequenceDiagram
+    participant W as Judge worker
+    participant B as Shared request budget
+    participant P as Provider
+    participant R as Results JSONL
+    loop Each attempt, including retries
+        W->>B: Reserve a slot for this model
+        break Budget exhausted
+            B-->>W: Stop before sending
+        end
+        B-->>W: Admit after rate-limit delay
+        W->>P: Submit judgment
+        P-->>W: Response or retryable failure
+    end
+    W->>R: Append completed judgment or final provider error
+```
+
 `recount.py` reads every `results_*.jsonl` file in `results/`, so move new runs elsewhere before recounting the paper's numbers.
 
 The paper's runs used the free Gemini API tier on October 12–13, 2026, at temperature 0. Gemini models had a 1,800-token output budget; Gemma was rerun with 8,192 tokens after the first run was truncated, and only the rerun is included.
